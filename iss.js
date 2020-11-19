@@ -12,12 +12,18 @@ const fetchMyIP = function(callback) {
   // use request to fetch IP address from JSON API
   request('https://api.ipify.org?format=json', (error, response, body) => {
     console.log('error', error);
-    //console.log('response', response && response.)
-    if (!error) {
-      callback(null, JSON.parse(body)['ip']);
-    } else {
+    console.log('response', response && response.statusCode);
+    if (error) {
       callback(error, null);
+      return;
     }
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    const ip = JSON.parse(body)['ip'];
+    callback(null, ip);
   });
 };
 
