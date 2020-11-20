@@ -1,18 +1,7 @@
 const request = require('request');
 
-/**
- * Makes a single API request to retrieve the user's IP address.
- * Input:
- *   - A callback (to pass back an error or the IP string)
- * Returns (via Callback):
- *   - An error, if any (nullable)
- *   - The IP address as a string (null if error). Example: "162.245.144.188"
- */
 const fetchMyIP = function(callback) {
-  // use request to fetch IP address from JSON API
   request('https://api.ipify.org?format=json', (error, response, body) => {
-    console.log('error', error);
-    console.log('response', response && response.statusCode);
     if (error) {
       callback(error, null);
       return;
@@ -34,7 +23,7 @@ const fetchCoordsByIP = function(ip, callback) {
       return;
     }
     if (response.statusCode !== 200) {
-      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      const msg = `Status Code ${response.statusCode} when fetching geocoordinates. Response: ${body}`;
       callback(Error(msg), null);
       return;
     }
@@ -47,5 +36,22 @@ const fetchCoordsByIP = function(ip, callback) {
   });
 };
 
+const fetchISSFlyOverTimes = function(coords, callback) {
+  request(`http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} when fetching ISS flyover times. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    const parsed = JSON.parse(body)['response'];
+    console.log(parsed);
+  });
+};
+
 module.exports = { fetchMyIP,
-  fetchCoordsByIP };
+  fetchCoordsByIP,
+  fetchISSFlyOverTimes };
